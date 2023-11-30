@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hosting a Next.js website with GitHub Pages - Ken Schnall</title>
+  </head>
+  <body>
+    <h2><a href="/">Ken Schnall</a></h2>
+
+    <h1>Hosting a Next.js website with GitHub Pages</h1>
+    <p>October 26, 2020</p>
+    <p><i>(Updated 2021-05-08 with build-export-windows command)</i></p>
+    <p>In this post I'll show you how to host a Next.js website with GitHub Pages. You'll need to have Git installed, a GitHub account, Node.js installed, and ideally you'll already have a Next.js project that you are looking to host.</p>
+    <ol>
+        <li>Create the Next.js project repository</li>
+        <li>Create the GitHub Pages repository</li>
+        <li>Set up your Next.js project to compile to the GitHub Pages repository</li>
+        <li>Disable Jekyll processing in the GitHub Pages repository</li>
+    </ol>
+    <h2>Create the Next.js project repository</h2>
+    <p>Create an empty Git repository. This repository will serve as the source of your Next.js website. Make sure it's empty, we'll make the first commit later.</p>
+    <p>An easy way to start a Next.js project is to use the project created in <a href="https://nextjs.org/learn/basics/create-nextjs-app" target="_blank">the Next.js website's learn section</a>. Work your way through that section to learn how Next.js works, or skip to the end of that section to find a command you can run to create a Next.js project.</p>
+    <p>The final result of the learn section is the Next.js project at <a href="https://github.com/vercel/next-learn-starter/tree/master/demo" target="_blank">https://github.com/vercel/next-learn-starter/tree/master/demo</a>. I highly recommend checking this repository to verify that this is still accurate.</p>
+    <p>Using a command found throughout the Next.js website's learn section, create the Next.js project using the link we just found. Read the notes just below before running this command.</p>
+    <code>npx create-next-app nextjs-blog --use-npm --example "https://github.com/vercel/next-learn-starter/tree/master/demo"</code>
+    <ul>
+        <li>Run the command in the directory above your Git repository's directory</li>
+        <li>Replace <code>nextjs-blog</code> with the name of your Git repository</li>
+    </ul>
+    <p>Now your Next.js project is created and we can push the first commit to the project source repository. If you're using a GitHub repository for the source of your project, follow the instructions at the GitHub page for your repository to make the first commit. Push the first commit to the source repository.</p>
+    <h2>Create the GitHub Pages repository</h2>
+    <p>Now we need to create the repository for the compiled Next.js website, which will be the repository served by GitHub Pages. Create an empty GitHub repository with the name below.</p>
+    <p>kas.github.io</p>
+    <ul>
+        <li>Replace "kas" with your GitHub username</li>
+    </ul>
+    <p>Now we need to compile your Next.js project, sending the output to the GitHub Pages repository that you just created. Then we'll use the output as the first commit to the GitHub Pages repository.</p>
+    <h2>Set up your Next.js project to compile to the GitHub Pages repository</h2>
+    <p>To send the Next.js project compilation output to the GitHub Pages repository, we'll create an npm script. This script needs to accomplish the following:</p>
+    <ol>
+        <li>Remove files and folders that updates to the Next.js project would overwrite</li>
+        <li>Build the Next.js project</li>
+        <li>Export the Next.js project</li>
+        <li>Copy the output of the built Next.js project to the GitHub Pages repository</li>
+    </ol>
+    <p>Edit the Next.js project's package.json file and add a script with the below content.</p>
+    <code>"build-export": "bash -c 'rm -fr ../kas.github.io/{404.html,_next,index.html,posts} && npm run build && npx next export && cp -a out/. ../kas.github.io'",</code>
+    <p>or</p>
+    <code>"build-export-windows": "powershell Remove-Item ..\\kas.github.io\\404.html; Remove-Item ..\\kas.github.io\\_next -Recurse; Remove-Item ..\\kas.github.io\\index.html; Remove-Item ..\\kas.github.io\\posts -Recurse; npm run build; npx next export; Copy-Item -Path out\\* -Destination ..\\kas.github.io -Recurse",</code>
+    <ul>
+        <li>Replace "kas" with your GitHub username</li>
+        <li>If you're using the Windows command, I recommend unlinking OneDrive or disabling OneDrive for the repository folders</li>
+    </ul>
+    <p>Now you can make changes to your Next.js project, run the "build-export" script, and the changes will be sent to your GitHub Pages repository. You'll still need to commit and push the changes in the GitHub Pages repository.</p>
+    <h2>Disable Jekyll processing in the GitHub Pages repository</h2>
+    <p>The last thing to do in the GitHub Pages repository is to include a file to disable Jekyll processing. GitHub Pages automatically processes files with Jekyll, which interferes with the _next directory. To unblock the _next directory from being included in the final website, add an empty .nojekyll file to the root of the GitHub Pages repository.</p>
+
+    <p><a href="/"><- Back</a></p>
+  </body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Installing a macOS virtual machine - Ken Schnall</title>
+  </head>
+  <body>
+    <h2><a href="/">Ken Schnall</a></h2>
+
+    <h1>Installing a macOS virtual machine</h1>
+    <p>October 14, 2021</p>
+    <p>I recently ran into a situation where I needed macOS for React Native app deployment. The issue is, my current machine is a ThinkPad X13 that runs Windows 10. After searching around for a way to get a macOS virtual machine set up, I found <a href="https://github.com/myspaghetti/macos-virtualbox">macos-virtualbox</a>.</p>
+    <p>macos-virtualbox is a shell script that provisions a macOS virtual machine for you in VirtualBox. In most cases, all you'll need to do is press enter a few times when the script is running. In this post, I'll share how to use the script and how the process went for me.</p>
+    <h2>Prerequisites</h2>
+    <p>You'll need to install VirtualBox (optionally with the extension pack) and Cygwin (with the packages bash, coreutils, gzip, unzip, wget, and xxd) (you may be able to use WSL instead, but I used Cygwin). Installation was straightforward except for me not understanding how to select packages during Cygwin installation (just filter for the package and make sure a version is selected for the package). Also download <a href="https://raw.githubusercontent.com/myspaghetti/macos-guest-virtualbox/master/macos-guest-virtualbox.sh">the script</a>.</p>
+    <h2>Installation</h2>
+    <p>Now you'll need to open Cygwin, navigate to where the script is located (e.g., cd /cygdrive/c/Users/.../Downloads) and start the script (./macos-guest-virtualbox.sh). Continue following the script's prompts and press enter when requested.</p>
+    <h2>Troubleshooting</h2>
+    <p>Documentation can be viewed with this command: ./macos-guest-virtualbox.sh documentation</p>
+    <p>During installation, I ran into issues related to CPU profiles and CPUID settings (in fact, the script referred me to this section of the documentation "CPU profiles and CPUID settings"). I followed the mitigations suggested in this section and the issue was resolved. I was able to use the "Intel Xeon X5482 3.20GHz" CPU profile to fix booting.</p>
+    <p>If you run into any issues and you need to abort the script, you can resume the script with this command: ./macos-guest-virtualbox.sh &ltsection> and_all_subsequent_stages</p>
+    <h2>Cleanup</h2>
+    <p>After installation finished and you log in, you can power down the virtual machine and run this command to clean up temporary files: ./macos-guest-virtualbox.sh prompt_delete_temporary_files</p>
+    <p>If you need to change the location of the VDI file, you can use this command (PowerShell): .\VBoxManage.exe modifymedium  "&ltmedium-id>" --setlocation "C:\Users\...\macOS.vdi"</p>
+    <h2>Next steps</h2>
+    <p>After installation finished and you log in, you can upgrade to the latest macOS release.</p>
+    <h2>Sharing files</h2>
+    <p>If you want to share files between Windows and your virtual machine, you can turn on SSH and use <a href="https://en.wikipedia.org/wiki/Rsync">rsync</a>. I had the best luck setting up SSH and rsync in WSL (I ran into an issue where Cygwin was trying to use <a href="https://unix.stackexchange.com/a/637473">Windows' SSH with rsync</a> instead of Cygwin's).</p>
+    <p><a href="https://superuser.com/a/1620974">This Super User answer</a> explains a command you need to run to get access to Windows' ports from within WSL.</p>
+    <p>Since the command does not persist across restarts, you can use this command to remove any firewall rule named WSL, then recreate it (preventing duplication): Remove-NetFirewallRule -DisplayName "WSL"; New-NetFirewallRule -DisplayName "WSL" -Direction Inbound -InterfaceAlias "vEthernet (WSL)" -Action Allow</p>
+    <p>You'll also need to port forward port 22 in your virtual machine's network settings (I port forwarded Windows port 3022 to the virtual machine's port 22).</p>
+    <p>Finally, you need to use a specific IP address within WSL that is essentially an alias to Windows' localhost. Go to "View network connections" in the Start menu and go to the properties of "vEthernet (WSL)". Press details and note down the IPv4 Address. You can use this address in WSL to reference Windows' localhost.</p>
+    <p>So now you can use a command like this to SSH from WSL into your virtual machine: ssh -p 3022 username@&ltipv4-address></p>
+    <p>And you can use an <a href="https://stackoverflow.com/a/4630407">rsync command like this</a>: rsync -rvz -e 'ssh -p 3022' --progress ./directory username@&ltipv4-address>:/path</p>
+    <h2>Helpful links</h2>
+    <ul>
+        <li><a href="https://github.com/myspaghetti/macos-virtualbox/issues/510">https://github.com/myspaghetti/macos-virtualbox/issues/510</a></li>
+        <li><a href="https://docs.oracle.com/en/virtualization/virtualbox/6.0/relnotes/move-vm.html">https://docs.oracle.com/en/virtualization/virtualbox/6.0/relnotes/move-vm.html</a></li>
+    </ul>
+
+    <p><a href="/"><- Back</a></p>
+  </body>
+</html>
